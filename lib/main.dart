@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_gen/gen_l10n/gallery_localizations.dart';
@@ -17,9 +19,96 @@ import 'package:google_fonts/google_fonts.dart';
 
 export 'package:gallery/data/demos.dart' show pumpDeferredLibraries;
 
+class MouseCursorPainter extends CustomPainter {
+  MouseCursorPainter({required this.offset});
+
+  final Offset offset;
+  final factor = 32.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = ui.Path()
+      ..moveTo(offset.dx, offset.dy)
+      ..lineTo(offset.dx, offset.dy + 48 / 64 * factor)
+      ..lineTo(offset.dx + 34 / 64 * factor, offset.dy + 34 / 64 * factor)
+      ..close();
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.black
+        ..style = ui.PaintingStyle.fill,
+    );
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.white
+        ..style = ui.PaintingStyle.stroke
+        ..strokeJoin = ui.StrokeJoin.miter
+        ..strokeWidth = 3.5 / 64 * factor,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant MouseCursorPainter oldDelegate) {
+    return oldDelegate.offset != offset;
+  }
+}
+
+class SoftwareMouseCursor extends StatelessWidget {
+  SoftwareMouseCursor({Key? key, required this.child}) : super(key: key);
+
+  final cursorPos = ValueNotifier(Offset.zero);
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (event) {
+        if (event.kind == PointerDeviceKind.mouse) {
+          cursorPos.value = event.position;
+        }
+      },
+      onPointerMove: (event) {
+        if (event.kind == PointerDeviceKind.mouse) {
+          cursorPos.value = event.position;
+        }
+      },
+      onPointerUp: (event) {
+        if (event.kind == PointerDeviceKind.mouse) {
+          cursorPos.value = event.position;
+        }
+      },
+      onPointerHover: (event) {
+        if (event.kind == PointerDeviceKind.mouse) {
+          cursorPos.value = event.position;
+        }
+      },
+      behavior: HitTestBehavior.translucent,
+      child: ValueListenableBuilder<Offset>(
+        valueListenable: cursorPos,
+        builder: (context, pos, child) {
+          return CustomPaint(
+            foregroundPainter: MouseCursorPainter(offset: pos),
+            child: child,
+          );
+        },
+        child: RepaintBoundary(
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 void main() {
   GoogleFonts.config.allowRuntimeFetching = false;
-  runApp(const GalleryApp());
+  runApp(
+    SoftwareMouseCursor(
+      child: const GalleryApp(),
+    ),
+  );
 }
 
 class GalleryApp extends StatelessWidget {
