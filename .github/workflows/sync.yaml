@@ -9,8 +9,26 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: tgymnich/fork-sync@v1.6.3
+      - name: Checkout gallery
+        uses: actions/checkout@v3.3.0
         with:
-          owner: flutter
-          base: main
-          head: main
+          path: gallery
+          fetch-depth: 0
+          ref: main
+          
+      - name: Add upstream remote
+        working-directory: gallery
+        run: |
+          git remote add upstream https://github.com/flutter/gallery
+          git fetch upstream
+      
+      - name: Update main branch
+        working-directory: gallery
+        run: |
+          git checkout main
+          git reset --hard upstream/main
+      
+      - name: Push
+        working-directory: gallery
+        run: |
+          git push
