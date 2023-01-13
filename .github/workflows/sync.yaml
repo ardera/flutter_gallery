@@ -11,5 +11,6 @@ jobs:
     steps:
       - uses: tgymnich/fork-sync@v1.6.3
         with:
+          owner: flutter
           base: main
           head: main
