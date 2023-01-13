@@ -1,5 +1,20 @@
 name: Sync Fork
 
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  id-token: write
+  issues: write
+  discussions: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+  
 on:
   schedule:
     - cron: '*/30 * * * *' # every 30 minutes
